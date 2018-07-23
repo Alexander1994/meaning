@@ -40,10 +40,39 @@ function containsTmpl(template) {
     return false;
 }
 
+/*
+if is noun and letters before noun are "a "
+replace with "an "
+*/
+const shouldUseAn = function(word) {
+    switch (word.charAt(0)) {
+        case "a":
+        case "e":
+        case "i":
+        case "o":
+        case "u":
+        case "h":
+            return true;
+        default:
+            return false;
+    }
+}
+
+const aIsBefore = function(tmpl, tmplToReplace) {
+    let index = tmpl.indexOf(tmplToReplace);
+    return index > 1 && tmpl.substring(index-2, index) === "a ";
+}
+
+
 const TemplateEngine = function(tmpl) {
     let tmplToReplace;
     while ((tmplToReplace = containsTmpl(tmpl))) {
-        let word = getWord(getTmplType(tmplToReplace));
+        let type = getTmplType(tmplToReplace);
+        let word = getWord(type);
+        if (type === "noun" && shouldUseAn(word) && aIsBefore(tmpl, tmplToReplace)) {
+            tmplToReplace = "a " + tmplToReplace;
+            word = "an " + word;
+        }
         tmpl = tmpl.replace(tmplToReplace, word);
     }
     return capFirstLetter(tmpl);
